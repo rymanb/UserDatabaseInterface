@@ -59,11 +59,10 @@ public class Handlers
         {
             try
             {
-                // Get the user id from the query string
-                string userId = GetParameterFromList("userid", context.Request, log);
-
-                UserMetadata m = new UserMetadata();
-                m.userid = userId;
+                // Get the user metadata from the request
+                string requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
+                UserMetadata m = JsonSerializer.Deserialize<UserMetadata>(requestBody);
+                
 
                 // Get the metadata from the CosmosDb
                 if (await _cosmosDbWrapper.GetItemAsync<UserMetadata>(m.id, m.userid) != null)

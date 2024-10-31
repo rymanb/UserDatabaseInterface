@@ -54,6 +54,8 @@ class Program
         WebApplication app = builder.Build();
 
         app.MapGet("/", instance.HealthCheckDelegate);
+        app.MapPost("/api/user", instance.AddUser);
+        app.MapGet("/api/user", instance.GetUser);
         app.Run();
     }
 }
