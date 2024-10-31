@@ -1,0 +1,25 @@
+name: Build Linux Container Image and Push to ACR
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build_and_push_container:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v2
+    - uses: azure/docker-login@v1
+      with:
+        login-server: rbcs399registry.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    - run: |
+        docker image build --pull --file './Dockerfile' --tag 'userdatabaseinterface:latest' --label 'com.microsoft.created-by=visual-studio-code' --platform 'linux/amd64' './'
+        docker tag userdatabaseinterface rbcs399registry.azurecr.io/userdatabaseinterface:latest
+    - run: docker push rbcs399registry.azurecr.io/userdatabaseinterface:latest
