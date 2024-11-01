@@ -61,7 +61,17 @@ public class Handlers
             {
                 // Get the user metadata from the request
                 string requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
+                // makesure body is not empty
+                if (string.IsNullOrEmpty(requestBody))
+                {
+                    throw new UserErrorException("Request body is empty");
+                }
+
                 UserMetadata m = JsonSerializer.Deserialize<UserMetadata>(requestBody);
+
+                // Validate the metadata
+                Validator.ValidateObject(m, new ValidationContext(m), true);
+
                 
 
                 // Get the metadata from the CosmosDb
