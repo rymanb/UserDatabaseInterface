@@ -8,6 +8,10 @@ using System.Text;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http.Extensions;
 
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Core;
+
 namespace UserDBInterface.Service;
 
 
@@ -59,6 +63,32 @@ public class Handlers
         {
             try
             {
+                SecretClientOptions options = new SecretClientOptions()
+                {
+                    Retry =
+                    {
+                        Delay= TimeSpan.FromSeconds(2),
+                        MaxDelay = TimeSpan.FromSeconds(16),
+                        MaxRetries = 5,
+                        Mode = RetryMode.Exponential
+                    }
+                };
+
+                var secretClient = new SecretClient(new Uri("https://fileservicekeyvault.vault.azure.net/"), new DefaultAzureCredential(),options);
+
+                KeyVaultSecret secret = secretClient.GetSecret("UserDBKey");
+
+                string secretValue = secret.Value;
+
+                // get header
+                string header = context.Request.Headers["x-auth-key"];
+
+                if (header != secretValue)
+                {
+                    throw new UserErrorException("Invalid x-auth-key");
+                }
+
+
                 // Get the user metadata from the request
                 string requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
                 // makesure body is not empty
@@ -97,6 +127,31 @@ public class Handlers
         {
             try
             {
+                SecretClientOptions options = new SecretClientOptions()
+                {
+                    Retry =
+                    {
+                        Delay= TimeSpan.FromSeconds(2),
+                        MaxDelay = TimeSpan.FromSeconds(16),
+                        MaxRetries = 5,
+                        Mode = RetryMode.Exponential
+                    }
+                };
+
+                var secretClient = new SecretClient(new Uri("https://fileservicekeyvault.vault.azure.net/"), new DefaultAzureCredential(),options);
+
+                KeyVaultSecret secret = secretClient.GetSecret("UserDBKey");
+
+                string secretValue = secret.Value;
+
+                // get header
+                string header = context.Request.Headers["x-auth-key"];
+
+                if (header != secretValue)
+                {
+                    throw new UserErrorException("Invalid x-auth-key");
+                }
+
                 // Get the user id from the query string
                 string userId = GetParameterFromList("userid", context.Request, log);
 
