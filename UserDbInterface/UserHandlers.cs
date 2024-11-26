@@ -63,30 +63,30 @@ public class Handlers
         {
             try
             {
-                SecretClientOptions options = new SecretClientOptions()
-                {
-                    Retry =
-                    {
-                        Delay= TimeSpan.FromSeconds(2),
-                        MaxDelay = TimeSpan.FromSeconds(16),
-                        MaxRetries = 5,
-                        Mode = RetryMode.Exponential
-                    }
-                };
+                // SecretClientOptions options = new SecretClientOptions()
+                // {
+                //     Retry =
+                //     {
+                //         Delay= TimeSpan.FromSeconds(2),
+                //         MaxDelay = TimeSpan.FromSeconds(16),
+                //         MaxRetries = 5,
+                //         Mode = RetryMode.Exponential
+                //     }
+                // };
 
-                var secretClient = new SecretClient(new Uri("https://fileservicekeyvault.vault.azure.net/"), new DefaultAzureCredential(),options);
+                // var secretClient = new SecretClient(new Uri("https://fileservicekeyvault.vault.azure.net/"), new DefaultAzureCredential(),options);
 
-                KeyVaultSecret secret = secretClient.GetSecret("UserDBKey");
+                // KeyVaultSecret secret = secretClient.GetSecret("UserDBKey");
 
-                string secretValue = secret.Value;
+                // string secretValue = secret.Value;
 
-                // get header
-                string header = context.Request.Headers["x-auth-key"];
+                // // get header
+                // string header = context.Request.Headers["x-auth-key"];
 
-                if (header != secretValue)
-                {
-                    throw new UserErrorException("Invalid x-auth-key");
-                }
+                // if (header != secretValue)
+                // {
+                //     throw new UserErrorException("Invalid x-auth-key");
+                // }
 
 
                 // Get the user metadata from the request
@@ -127,30 +127,30 @@ public class Handlers
         {
             try
             {
-                SecretClientOptions options = new SecretClientOptions()
-                {
-                    Retry =
-                    {
-                        Delay= TimeSpan.FromSeconds(2),
-                        MaxDelay = TimeSpan.FromSeconds(16),
-                        MaxRetries = 5,
-                        Mode = RetryMode.Exponential
-                    }
-                };
+                // SecretClientOptions options = new SecretClientOptions()
+                // {
+                //     Retry =
+                //     {
+                //         Delay= TimeSpan.FromSeconds(2),
+                //         MaxDelay = TimeSpan.FromSeconds(16),
+                //         MaxRetries = 5,
+                //         Mode = RetryMode.Exponential
+                //     }
+                // };
 
-                var secretClient = new SecretClient(new Uri("https://fileservicekeyvault.vault.azure.net/"), new DefaultAzureCredential(),options);
+                // var secretClient = new SecretClient(new Uri("https://fileservicekeyvault.vault.azure.net/"), new DefaultAzureCredential(),options);
 
-                KeyVaultSecret secret = secretClient.GetSecret("UserDBKey");
+                // KeyVaultSecret secret = secretClient.GetSecret("UserDBKey");
 
-                string secretValue = secret.Value;
+                // string secretValue = secret.Value;
 
-                // get header
-                string header = context.Request.Headers["x-auth-key"];
+                // // get header
+                // string header = context.Request.Headers["x-auth-key"];
 
-                if (header != secretValue)
-                {
-                    throw new UserErrorException("Invalid x-auth-key");
-                }
+                // if (header != secretValue)
+                // {
+                //     throw new UserErrorException("Invalid x-auth-key");
+                // }
 
                 // Get the user id from the query string
                 string userId = GetParameterFromList("userid", context.Request, log);
