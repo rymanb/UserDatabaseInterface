@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Core;
+using Microsoft.Azure.Cosmos;
 
 namespace UserDBInterface.Service;
 
@@ -160,7 +161,7 @@ public class Handlers
                 string userId = GetParameterFromList("userid", context.Request, log);
 
                 // Get the metadata from the CosmosDb
-                IEnumerable<UserMetadata> metadata = await GetMetadataFromCosmosDb(userId);
+                UserMetadata metadata = await GetMetadataFromCosmosDb(userId);
 
                 // Serialize the metadata to JSON
                 string json = JsonSerializer.Serialize(metadata);
@@ -207,9 +208,17 @@ public class Handlers
         }
     }
 
-    private async Task<IEnumerable<UserMetadata>> GetMetadataFromCosmosDb(string userId)
+    private async Task<UserMetadata> GetMetadataFromCosmosDb(string userId)
     {
         string queryString = $"SELECT * FROM c WHERE c.userid = '{userId}'";
-        return await _cosmosDbWrapper.GetItemsAsync<UserMetadata>(queryString);
+        var user = await _cosmosDbWrapper.GetItemsAsync<UserMetadata>(queryString);
+
+        var metadata = user.FirstOrDefault();
+        if (metadata == null)
+        {
+            throw new UserErrorException("User not found");
+        }
+
+        return metadata;
     }
 }
