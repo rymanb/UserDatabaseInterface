@@ -75,21 +75,31 @@ public class Handlers
                     }
                 };
 
-                var secretClient = new SecretClient(new Uri("https://fileservicekeyvault.vault.azure.net/"), new DefaultAzureCredential(),options);
+                var keyvaulturl = _configuration["KeyVaultUrl"];
+                if (string.IsNullOrEmpty(keyvaulturl))
+                {
+                    throw new UserErrorException("KeyVaultUrl is not set");
+                }
+
+                var secretClient = new SecretClient(new Uri(keyvaulturl), new DefaultAzureCredential(),options);
 
                 KeyVaultSecret secret = secretClient.GetSecret("UserDBKey");
 
                 string secretValue = secret.Value;
 
                 // get header
-                string header = context.Request.Headers["x-auth-key"];
+                string? header = context.Request.Headers["x-auth-key"];
+                if (header == null)
+                {
+                    throw new UserErrorException("x-auth-key header is missing");
+                }
+
 
                 if (header != secretValue)
                 {
                     log.LogUserError("Invalid x-auth-key - expected: " + secretValue + " received: " + header);
                     throw new UserErrorException("Invalid x-auth-key");
                 }
-
 
                 // Get the user metadata from the request
                 string requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
@@ -99,12 +109,10 @@ public class Handlers
                     throw new UserErrorException("Request body is empty");
                 }
 
-                UserMetadata m = JsonSerializer.Deserialize<UserMetadata>(requestBody);
+                UserMetadata m = JsonSerializer.Deserialize<UserMetadata>(requestBody) ?? throw new UserErrorException("Invalid JSON");
 
                 // Validate the metadata
                 Validator.ValidateObject(m, new ValidationContext(m), true);
-
-                
 
                 // Get the metadata from the CosmosDb
                 if (await _cosmosDbWrapper.GetItemAsync<UserMetadata>(m.id, m.userid) != null)
@@ -140,14 +148,24 @@ public class Handlers
                     }
                 };
 
-                var secretClient = new SecretClient(new Uri("https://fileservicekeyvault.vault.azure.net/"), new DefaultAzureCredential(),options);
+                var keyvaulturl = _configuration["KeyVaultUrl"];
+                if (string.IsNullOrEmpty(keyvaulturl))
+                {
+                    throw new UserErrorException("KeyVaultUrl is not set");
+                }
+
+                var secretClient = new SecretClient(new Uri(keyvaulturl), new DefaultAzureCredential(),options);
 
                 KeyVaultSecret secret = secretClient.GetSecret("UserDBKey");
 
                 string secretValue = secret.Value;
 
                 // get header
-                string header = context.Request.Headers["x-auth-key"];
+                string? header = context.Request.Headers["x-auth-key"];
+                if (header == null)
+                {
+                    throw new UserErrorException("x-auth-key header is missing");
+                }
 
                 if (header != secretValue)
                 {
@@ -162,6 +180,11 @@ public class Handlers
 
                 // Get the metadata from the CosmosDb
                 UserMetadata metadata = await GetMetadataFromCosmosDb(userId);
+
+                if (metadata == null)
+                {
+                    throw new UserErrorException("User not found");
+                }
 
                 // Serialize the metadata to JSON
                 string json = JsonSerializer.Serialize(metadata);
