@@ -75,7 +75,7 @@ public class Handlers
                     }
                 };
 
-                var keyvaulturl = _configuration["AzureFileServer:KeyVaultUrl"];
+                var keyvaulturl = _configuration["AzureFileServer:ConnectionStrings:KeyVaultUrl"];
                 if (string.IsNullOrEmpty(keyvaulturl))
                 {
                     throw new UserErrorException("KeyVaultUrl is not set");
@@ -148,7 +148,7 @@ public class Handlers
                     }
                 };
 
-                var keyvaulturl = _configuration["AzureFileServer:KeyVaultUrl"];
+                var keyvaulturl = _configuration["AzureFileServer:ConnectionStrings:KeyVaultUrl"];
                 if (string.IsNullOrEmpty(keyvaulturl))
                 {
                     throw new UserErrorException("KeyVaultUrl is not set");
